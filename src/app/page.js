@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import ArtistExplorerGraph from './components/ArtistExplorerGraph'
+import { SpotifyLoginButton } from './components/SpotifyLoginButton';
 
 export default function Page() {
   const [topArtists, setTopArtists] = useState([]);
@@ -23,9 +24,12 @@ export default function Page() {
   return (
     <div>
       <h1>Artist Explorer</h1>
-      <button style={{ backgroundColor: 'green', color: 'white' }} onClick={handleLogin}>
+      <SpotifyLoginButton id="login-button" data-testid="login-button">
+        Log In
+      </SpotifyLoginButton>
+      {/* <button style={{ backgroundColor: 'green', color: 'white' }} onClick={handleLogin}>
         Login to Spotify
-      </button>
+      </button> */}
       <ArtistExplorerGraph topArtists={topArtists} />
     </div>
   );
