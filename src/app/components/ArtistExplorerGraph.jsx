@@ -1,10 +1,29 @@
 'use client';
 
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import * as d3 from 'd3';
 
 const ArtistExplorerGraph = ({ nodes, links}) => {
   const graphRef = useRef(null);
+  const [windowSize, setWindowSize] = useState({
+    width: window.innerWidth,
+    height: window.innerHeight,
+  });
+
+  // Handle window resize
+  useEffect(() => {
+    const handleResize = () => {
+      setWindowSize({
+        width: window.innerWidth,
+        height: window.innerHeight,
+      });
+    };
+
+    window.addEventListener("resize", handleResize);
+
+    // Clean up event listener on component unmount
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   useEffect(() => {
     const svg = d3.select(graphRef.current);
@@ -95,17 +114,31 @@ const ArtistExplorerGraph = ({ nodes, links}) => {
         .attr('fill', (d) => d3.interpolateBlues(d.value / 100))
         .call(drag(simulation)); // Apply drag behavior
 
-        const label = svg.append("g")
-            .selectAll("text")
-            .data(nodes)
-            .join("text")
-            .text(d => d.name)
-            .attr("text-anchor", "middle")
-            .attr("fill", "#333")
-            .attr("stroke", "#fff")
-            .attr("stroke-width", 0.5)
-            .attr("font-size", "10px")
-            .attr("dy", -7);
+        // const label = svg.append("g")
+        //     .selectAll("text")
+        //     .data(nodes)
+        //     .join("text")
+        //     .text(d => d.name)
+        //     .attr("text-anchor", "middle")
+        //     .attr("fill", "#333")
+        //     .attr("stroke", "#fff")
+        //     .attr("stroke-width", 0.5)
+        //     .attr("font-size", "10px")
+        //     .attr("dy", -7);
+
+        const label = g
+          .selectAll(null) 
+          .data(nodes)
+          .enter()
+          .append("text")
+          .text(d => d.name)
+          .attr("text-anchor", "middle")
+          .attr("fill", "#333")
+          .attr("stroke", "#fff")
+          .attr("stroke-width", 0.5)
+          .attr("font-size", "10px")
+          .attr("dy", ".35em"); // This adjusts the label position to the center of the node
+
 
       simulation.on('tick', () => {
         link
@@ -121,12 +154,11 @@ const ArtistExplorerGraph = ({ nodes, links}) => {
           .attr("y", d => d.y);
       });
     }
-  }, [nodes, links]);
+  }, [nodes, links, windowSize]);
 
   return (
     <div>
-      <svg ref={graphRef} width="800" height="600" />
-    </div>
+      <svg ref={graphRef} width={windowSize.width} height={windowSize.height} />    </div>
   );
 };
 
