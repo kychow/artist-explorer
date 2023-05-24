@@ -24,7 +24,7 @@ export default function Page() {
   return (
     <div>
       <h1>Artist Explorer</h1>
-      <SpotifyLoginButton id="login-button" data-testid="login-button">
+      <SpotifyLoginButton id="login-button" data-testid="login-button" onClick={handleLogin}>
         Log In
       </SpotifyLoginButton>
       <ArtistExplorerGraph topArtists={topArtists} />

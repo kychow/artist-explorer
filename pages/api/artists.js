@@ -39,7 +39,7 @@ async function fetchTopArtistsCall(accessToken) {
         Authorization: `Bearer ${accessToken}`,
       },
       params: {
-        limit: 3,
+        limit: 10,
         time_range: 'medium_term',
       },
     });
