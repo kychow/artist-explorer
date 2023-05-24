@@ -102,7 +102,7 @@ const ArtistExplorerGraph = ({ nodes, links}) => {
         .data(links)
         .enter()
         .append('line')
-        .attr('stroke', 'rgba(120, 70, 200, 0.5)')
+        .attr('stroke', 'rgba(127,5,95, 0.5)')
         .attr('stroke-width', (d) => d.weight);
 
       const node = g
@@ -113,18 +113,6 @@ const ArtistExplorerGraph = ({ nodes, links}) => {
         .attr('r', (d) => d.value)
         .attr('fill', (d) => d3.interpolateBlues(d.value / 100))
         .call(drag(simulation)); // Apply drag behavior
-
-        // const label = svg.append("g")
-        //     .selectAll("text")
-        //     .data(nodes)
-        //     .join("text")
-        //     .text(d => d.name)
-        //     .attr("text-anchor", "middle")
-        //     .attr("fill", "#333")
-        //     .attr("stroke", "#fff")
-        //     .attr("stroke-width", 0.5)
-        //     .attr("font-size", "10px")
-        //     .attr("dy", -7);
 
         const label = g
           .selectAll(null) 
@@ -176,3 +164,5 @@ function boundaryForce(width, height) {
 
 
 export default ArtistExplorerGraph;
+
+

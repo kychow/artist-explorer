@@ -27,9 +27,6 @@ export default function Page() {
       <SpotifyLoginButton id="login-button" data-testid="login-button">
         Log In
       </SpotifyLoginButton>
-      {/* <button style={{ backgroundColor: 'green', color: 'white' }} onClick={handleLogin}>
-        Login to Spotify
-      </button> */}
       <ArtistExplorerGraph topArtists={topArtists} />
     </div>
   );
