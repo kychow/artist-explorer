@@ -12,6 +12,20 @@ const ArtistExplorerGraph = ({ topArtists }) => {
     const storedArtists = JSON.parse(localStorage.getItem('topArtists') || '[]');
 
     if (storedArtists.length > 0) {
+      // Create a 'g' element for zooming and panning
+      const g = svg.append('g');
+
+      // Create a zoom behavior
+      const zoom = d3.zoom().on('zoom', (event) => {
+        g.attr('transform', event.transform);
+      });
+
+      // Apply the zoom behavior on the svg
+      svg.call(zoom);
+
+      const width = +svg.attr('width');
+      const height = +svg.attr('height');
+
       const nodes = topArtists.map((artist) => ({
         id: artist.id,
         name: artist.name,
@@ -30,17 +44,41 @@ const ArtistExplorerGraph = ({ topArtists }) => {
       };
 
       const links = generateRandomWeights(nodes);
-      console.log(nodes);
-      console.log(links);
 
       const simulation = d3
         .forceSimulation(nodes)
         .force('link', d3.forceLink(links).id((d) => d.id))
         .force('charge', d3.forceManyBody().strength(-200))
-        .force('center', d3.forceCenter(svg.node().parentElement.clientWidth / 2, svg.node().parentElement.clientHeight / 2))
-        .force('collision', d3.forceCollide().radius((d) => d.value * 30));
+        .force('center', d3.forceCenter(width / 2, height / 2)) // center the graph
+        .force('boundary', boundaryForce(width, height)) // keep nodes within the SVG area
+        .force('collision', d3.forceCollide().radius((d) => d.value));
 
-      const link = svg
+      const drag = (simulation) => {
+        function dragstarted(event) {
+          if (!event.active) simulation.alphaTarget(0.3).restart();
+          event.subject.fx = event.subject.x;
+          event.subject.fy = event.subject.y;
+        }
+
+        function dragged(event) {
+          event.subject.fx = event.x;
+          event.subject.fy = event.y;
+        }
+
+        function dragended(event) {
+          if (!event.active) simulation.alphaTarget(0);
+          event.subject.fx = null;
+          event.subject.fy = null;
+        }
+
+        return d3
+          .drag()
+          .on('start', dragstarted)
+          .on('drag', dragged)
+          .on('end', dragended);
+      };
+
+      const link = g
         .selectAll('line')
         .data(links)
         .enter()
@@ -48,13 +86,14 @@ const ArtistExplorerGraph = ({ topArtists }) => {
         .attr('stroke', 'rgba(50, 50, 50, 0.2)')
         .attr('stroke-width', (d) => Math.sqrt(d.weight));
 
-      const node = svg
+      const node = g
         .selectAll('circle')
         .data(nodes)
         .enter()
         .append('circle')
-        .attr('r', (d) => d.value * 10)
-        .attr('fill', (d) => d3.interpolateBlues(d.value));
+        .attr('r', (d) => d.value)
+        .attr('fill', (d) => d3.interpolateBlues(d.value / 100))
+        .call(drag(simulation)); // Apply drag behavior
 
       simulation.on('tick', () => {
         link
@@ -74,5 +113,18 @@ const ArtistExplorerGraph = ({ topArtists }) => {
     </div>
   );
 };
+
+
+// This is the boundary force that keeps the nodes within the SVG area
+function boundaryForce(width, height) {
+  const radius = 50; // This is the radius of the nodes
+  return (alpha) => {
+    return (d) => {
+      d.x = Math.max(radius, Math.min(width - radius, d.x));
+      d.y = Math.max(radius, Math.min(height - radius, d.y));
+    };
+  };
+}
+
 
 export default ArtistExplorerGraph;
