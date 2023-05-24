@@ -3,7 +3,7 @@
 import React, { useEffect, useRef } from 'react';
 import * as d3 from 'd3';
 
-const ArtistExplorerGraph = ({ topArtists }) => {
+const ArtistExplorerGraph = ({ nodes, links}) => {
   const graphRef = useRef(null);
 
   useEffect(() => {
@@ -26,7 +26,7 @@ const ArtistExplorerGraph = ({ topArtists }) => {
       const width = +svg.attr('width');
       const height = +svg.attr('height');
 
-      const nodes = topArtists.map((artist) => ({
+      const nodes = storedArtists.map((artist) => ({
         id: artist.id,
         name: artist.name,
         value: artist.popularity,
@@ -83,8 +83,8 @@ const ArtistExplorerGraph = ({ topArtists }) => {
         .data(links)
         .enter()
         .append('line')
-        .attr('stroke', 'rgba(50, 50, 50, 0.2)')
-        .attr('stroke-width', (d) => Math.sqrt(d.weight));
+        .attr('stroke', 'rgba(120, 70, 200, 0.5)')
+        .attr('stroke-width', (d) => d.weight);
 
       const node = g
         .selectAll('circle')
@@ -95,6 +95,18 @@ const ArtistExplorerGraph = ({ topArtists }) => {
         .attr('fill', (d) => d3.interpolateBlues(d.value / 100))
         .call(drag(simulation)); // Apply drag behavior
 
+        const label = svg.append("g")
+            .selectAll("text")
+            .data(nodes)
+            .join("text")
+            .text(d => d.name)
+            .attr("text-anchor", "middle")
+            .attr("fill", "#333")
+            .attr("stroke", "#fff")
+            .attr("stroke-width", 0.5)
+            .attr("font-size", "10px")
+            .attr("dy", -7);
+
       simulation.on('tick', () => {
         link
           .attr('x1', (d) => d.source.x)
@@ -103,9 +115,13 @@ const ArtistExplorerGraph = ({ topArtists }) => {
           .attr('y2', (d) => d.target.y);
 
         node.attr('cx', (d) => d.x).attr('cy', (d) => d.y);
+
+        label
+          .attr("x", d => d.x)
+          .attr("y", d => d.y);
       });
     }
-  }, [topArtists]);
+  }, [nodes, links]);
 
   return (
     <div>
